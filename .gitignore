@@ -1,5 +1,41 @@
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 虚拟环境
+new_venv/
+venv/
+.venv/
+env/
 .env
-new_venv
-src/__pycache__
+
+# 向量数据库（Chroma 持久化目录，会占用大量空间且可重建）
+vector_db/
+
+# 数据文件（PDF 原文通常较大，且属于私有数据，不提交）
+data/reports/
+*.pdf
+
+# 生成的报告
+final_report.md
+final_report.md2
+*.log
+
+# 环境变量（含 API Key）
+.env
+
+# IDE 配置
 .vscode/
-vector_db
+.idea/
+*.swp
+
+# 测试临时文件
+test/tmp/
+.pytest_cache/
+
+# 系统文件
+.DS_Store
+Thumbs.db
