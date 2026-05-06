@@ -1,0 +1,5 @@
+.env
+new_venv
+src/__pycache__
+.vscode/
+vector_db
