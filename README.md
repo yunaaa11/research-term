@@ -1,75 +1,78 @@
-# Research-Team: Agentic RAG 多源行业调研系统
+﻿# Research-Term：多源行业调研智能体（Agentic RAG）
 
-这是一个基于 LangGraph 构建的 Agentic RAG 项目。系统接收用户输入的调研课题后，会根据任务类型自动路由到 Web 检索、本地 PDF 知识库检索或双路检索，再由 Writer Agent 生成结构化 Markdown 调研报告。
+`Research-Term` 是一个基于 LangGraph 的多智能体调研系统。输入一个行业问题后，系统会自动路由并组合：
+- Web 实时检索
+- 本地 PDF 知识检索
+- 结构化报告生成
 
-## 核心能力
+最终输出一份带来源标注的 Markdown 调研报告。
 
-- Multi-Agent 工作流：使用 LangGraph 编排 Router、Web Researcher、PDF Analyst、Writer 四个节点。
-- 动态任务路由：Supervisor/Router 根据课题关键词选择 `web`、`pdf` 或 `both` 路径。
-- Web 实时检索：集成 Tavily Search 和 trafilatura，获取并清洗网页正文。
-- 本地 RAG 检索：使用 ChromaDB 和 BGE 中文 Embedding 构建 PDF 向量知识库。
-- PDF/OCR 解析：优先解析文本型 PDF，扫描件 PDF 自动降级到 RapidOCR。
-- 报告生成：通过 Prompt 约束报告结构、来源标注和冲突信息分析。
-- 异常降级：Web、PDF、LLM 节点均带异常处理，失败时保留可读的中间结果。
+## 项目亮点
+
+- 多智能体协作：Router / Web Researcher / PDF Analyst / Writer 分工清晰
+- 动态路由：按问题语义选择 `web`、`pdf` 或 `both`
+- 双源证据融合：同时整合网页信息与本地 PDF 证据
+- 本地知识检索：基于 Chroma + Embedding 的向量化检索
+- 可追溯报告：关键结论可标注来源（Web/PDF）
+- 运行体验优化：已移除 OCR 与 OCR 缓存，降低依赖与等待时间
+
+## 技术框架
+
+- 工作流编排：LangGraph
+- LLM 调用：LangChain + `langchain-openai`
+- Web 搜索：Tavily
+- 网页正文抽取：Trafilatura
+- 本地文档解析：PyMuPDF（通过 LangChain PDF Loader）
+- 向量数据库：ChromaDB
+- 向量模型：`BAAI/bge-small-zh-v1.5`
 
 ## 系统流程
 
 ```mermaid
 flowchart TD
-    A[用户输入调研课题] --> B[Supervisor / Router]
-    B -->|route = web| C[Web Researcher]
-    B -->|route = pdf| D[PDF Analyst]
-    B -->|route = both| C
-    C -->|web only| E[Writer]
-    C -->|both| D
+    A["输入调研问题"] --> B["Router\n路径选择 web/pdf/both"]
+    B --> C["Web Researcher\n实时检索与网页抽取"]
+    B --> D["PDF Analyst\n本地 PDF 检索"]
+    C --> E["Writer\n融合证据并生成报告"]
     D --> E
-    E --> F[final_report.md]
-
-    C --> C1[Tavily Search]
-    C1 --> C2[trafilatura 正文清洗]
-
-    D --> D1[PyPDFLoader 解析 PDF]
-    D1 --> D2{是否有文本}
-    D2 -->|是| D3[文本切块]
-    D2 -->|否| D4[RapidOCR 识别]
-    D4 --> D3
-    D3 --> D5[ChromaDB 向量检索]
+    E --> F["输出 Markdown 报告\n generated_reports/"]
 ```
 
 ## 目录结构
 
 ```text
-research-team/
-├── data/
-│   └── reports/              # 本地 PDF 研报
+research-term/
 ├── examples/
-│   ├── sample_input.txt      # 示例输入课题
-│   └── sample_report.md      # 示例生成报告
+│   ├── sample_input.txt
+│   ├── sample_report.md
+│   ├── test_topics.md
+│   └── test_reports/             # 示例 PDF（默认本地知识库）
 ├── src/
 │   ├── agents/
-│   │   ├── supervisor.py     # LangGraph 编排和路由逻辑
-│   │   ├── researcher.py     # Web 检索 Agent
-│   │   ├── analyst.py        # PDF RAG 检索 Agent
-│   │   └── writer.py         # 报告生成 Agent
+│   │   ├── supervisor.py         # 路由与图编排
+│   │   ├── researcher.py         # Web 检索
+│   │   ├── analyst.py            # PDF 向量检索
+│   │   └── writer.py             # 报告生成
 │   ├── tools/
-│   │   ├── pdf_parser.py     # PDF/OCR 解析工具
-│   │   └── web_scraper.py    # 网页正文抽取工具
-│   ├── config.py             # API Key 和模型配置
-│   ├── main.py               # 任务入口
-│   └── schema.py             # AgentState 状态定义
-├── run.py                    # 命令行入口
-└── final_report.md           # 默认输出报告
+│   │   ├── pdf_parser.py
+│   │   └── web_scraper.py
+│   ├── config.py
+│   ├── main.py
+│   └── schema.py
+├── generated_reports/            # 统一输出目录
+├── run.py
+└── requirements.txt
 ```
 
 ## 快速开始
 
-### 1. 安装依赖
+### 1) 安装依赖
 
 ```bash
-pip install langgraph langchain-openai langchain-community langchain-huggingface chromadb tavily-python rapidocr-onnxruntime pymupdf trafilatura python-dotenv
+pip install -r requirements.txt
 ```
 
-### 2. 配置环境变量
+### 2) 配置环境变量
 
 在项目根目录创建 `.env`：
 
@@ -79,74 +82,51 @@ OPENAI_BASE_URL=https://api.openai.com/v1
 TAVILY_API_KEY=your_tavily_api_key
 ```
 
-默认模型在 `src/config.py` 中配置：
-
-```python
-LLM_MODEL = "qwen-plus"
-EMBEDDING_MODEL = "BAAI/bge-small-zh-v1.5"
-```
-
-### 3. 准备本地 PDF
-
-将行业研报或业务文档放入：
-
-```text
-data/reports/
-```
-
-首次运行时，系统会自动解析 PDF 并构建 `vector_db/` 向量库。
-
-### 4. 运行
+### 3) 运行项目
 
 ```bash
 python run.py
 ```
 
-运行后输入调研课题，生成结果会写入：
+输入调研主题后，系统会自动执行路由与检索，并生成报告。
 
-```text
-final_report.md
+## 输出说明
+
+- 报告统一保存到：`generated_reports/`
+- 文件命名格式：`report_YYYYMMDD_HHMMSS_<topic>.md`
+
+## PDF 数据源说明
+
+- 默认本地 PDF 目录：`examples/test_reports`
+- 可通过环境变量覆盖：
+
+```powershell
+$env:PDF_REPORTS_DIR="examples/test_reports"
+python run.py
 ```
 
-## AgentState
+## 路由策略（简述）
 
-系统通过 `AgentState` 在节点之间传递状态：
+- `web`：偏实时、政策、新闻类问题
+- `pdf`：偏本地资料、历史研报类问题
+- `both`：需要同时参考外部与本地证据（默认最常见）
 
-```python
-class AgentState(TypedDict):
-    task: str
-    route: str
-    web_context: str
-    pdf_context: str
-    report: str
-    steps: List[str]
-```
+## 当前版本说明
 
-其中 `steps` 会累计记录完整执行路径，便于调试和展示。
+- 已移除 OCR 与 OCR 缓存功能
+- 扫描版/图片版 PDF 不再解析
+- 文本型 PDF 检索能力不受影响
 
-## 路由策略
+## 常见问题
 
-Router 会根据课题关键词选择路径：
+- 只看到 Web 来源、没有 PDF 来源：
+  1. 检查 `examples/test_reports` 下是否有可解析文本型 PDF
+  2. 检查问题是否包含本地资料语义（如“本地 PDF/研报/资料”）
+  3. 检查首次构建向量库时是否报错
 
-- `web`：偏实时、新闻、政策、最新动态的问题。
-- `pdf`：偏本地研报、PDF、知识库、历史资料的问题。
-- `both`：默认路径，同时使用 Web 和 PDF 上下文。
+- 报告乱码：
+  - 确保文件均为 UTF-8 编码，并使用 UTF-8 环境查看/编辑
 
-示例：
+## License
 
-```text
-2025 年我国低空经济发展面临的主要挑战
-```
-
-该问题包含年份和行业分析需求，通常会走 `both` 路径。
-
-## 简历项目描述
-
-基于 LangGraph、LangChain、ChromaDB 和大语言模型构建 Agentic RAG 多源行业调研系统，支持 Web 实时检索、本地 PDF 知识库检索、扫描件 OCR 解析和结构化报告生成。系统通过 Router Agent 动态选择检索路径，并将多源上下文注入 Writer Agent，自动生成带来源标注的 Markdown 行业调研报告。
-
-## 后续优化方向
-
-- 增加 Reranker，提高 PDF 检索结果相关性。
-- 增加 Critic Agent，对报告引用和事实一致性进行二次校验。
-- 增加评估集，统计 recall@k、引用准确率和报告生成质量。
-- 将 Web 和 PDF 检索改为并行分支，进一步缩短响应时间。
+MIT

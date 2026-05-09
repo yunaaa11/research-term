@@ -14,6 +14,7 @@ env/
 
 # 向量数据库（Chroma 持久化目录，会占用大量空间且可重建）
 vector_db/
+data/cache/
 
 # 数据文件（PDF 原文通常较大，且属于私有数据，不提交）
 data/reports/
@@ -22,6 +23,7 @@ data/reports/
 # 生成的报告
 final_report.md
 final_report.md2
+generated_reports/
 *.log
 
 # 环境变量（含 API Key）
@@ -39,3 +41,6 @@ test/tmp/
 # 系统文件
 .DS_Store
 Thumbs.db
+
+!examples/test_reports/
+!examples/test_reports/*.pdf

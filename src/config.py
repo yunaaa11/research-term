@@ -14,4 +14,5 @@ class Config:
     TEMPERATURE = 0.7
 
     CHROMA_DB_PATH = "vector_db"
+    PDF_REPORTS_DIR = os.getenv("PDF_REPORTS_DIR", "examples/test_reports")
     EMBEDDING_MODEL = "BAAI/bge-small-zh-v1.5"

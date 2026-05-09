@@ -1,1 +1,39 @@
+# 可运行测试话题
 2025 年我国低空经济发展面临的主要挑战
+
+
+## 话题 1：AI 医疗
+
+```text
+结合最新政策和本地 PDF 资料，分析 2026 年 AI 医疗应用落地的主要场景、瓶颈和未来趋势
+```
+
+对应 PDF：
+
+```text
+examples/test_reports/ai_healthcare_2026.pdf
+```
+
+## 话题 2：具身智能
+
+```text
+结合最新市场动态和本地 PDF 资料，分析 2026 年具身智能机器人产业化面临的核心挑战
+```
+
+对应 PDF：
+
+```text
+examples/test_reports/embodied_ai_robotics_2026.pdf
+```
+
+## 话题 3：新能源汽车出海
+
+```text
+结合最新国际市场信息和本地 PDF 资料，分析 2026 年中国新能源汽车出海的机会、风险和竞争趋势
+```
+
+对应 PDF：
+
+```text
+examples/test_reports/ev_export_2026.pdf
+```
