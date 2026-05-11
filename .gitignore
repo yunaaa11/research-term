@@ -24,6 +24,7 @@ data/reports/
 final_report.md
 final_report.md2
 generated_reports/
+my_reports/
 *.log
 
 # 环境变量（含 API Key）

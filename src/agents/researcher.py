@@ -34,7 +34,7 @@ def web_researcher_node(state: AgentState):
                 "web_context": "没有返回有效的网络搜索结果。",
                 "steps": steps + ["Web搜索已完成，但未返回有效的urls"],
             }
-
+        #构建网页上下文
         web_content = _build_web_context(results, scraper)
         return {
             "web_context": web_content or "找到了网页，但没有提取出可用的 Web 正文或搜索摘要",
@@ -62,7 +62,9 @@ def _build_web_context(results, scraper):
 
         title = result.get("title") or "Untitled"
         tavily_content = (result.get("content") or result.get("raw_content") or "").strip()
+        #尝试抓取完整正文
         scraped_content = scraper.scrape_url(url).strip()
+        #选择最佳内容 成功抓取则获得丰富正文，失败时也能获得基本摘要
         use_scraped = scraped_content and not scraped_content.startswith(failure_prefixes)
         content = scraped_content if use_scraped else tavily_content
 

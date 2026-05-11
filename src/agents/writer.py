@@ -43,7 +43,7 @@ PDF 上下文：
 5. 不要编造数据或来源。
 """
         )
-
+        #构建链并调用
         chain = prompt | llm
         response = chain.invoke(
             {
@@ -58,6 +58,7 @@ PDF 上下文：
             "steps": steps + ["生成最终 Markdown 研究报告"],
         }
     except Exception as exc:
+        #如果 LLM 调用失败或 API Key 缺失，则回退到一个降级报告（展示原始上下文，避免信息丢失）
         return {
             "report": _fallback_report(state, f"LLM 生成失败: {exc}"),
             "steps": steps + [f"报告生成失败: {exc}"],
@@ -65,6 +66,7 @@ PDF 上下文：
 
 
 def _fallback_report(state: AgentState, reason: str):
+    """用于在 LLM 不可用时生成一个手工拼接的报告草稿"""
     return f"""# 研究报告草稿
 
 ## 主题

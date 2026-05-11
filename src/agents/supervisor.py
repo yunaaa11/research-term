@@ -39,14 +39,19 @@ def router_node(state: AgentState):
 
 
 def route_from_router(state: AgentState):
+    """根据路由结果，决定从 router 节点之后先去哪个检索节点"""
     if state["route"] == "pdf":
         return "pdf_analyst"
+    #"both" 情况下先走 Web，之后通过第二个条件边决定是否再去 PDF
     return "web_researcher"
 
 
 def route_after_web(state: AgentState):
+    """在 web_researcher 执行完之后，决定下一步"""
+    #如果路由是 "both"（需要两个源）→ 接着去 pdf_analyst 节点
     if state["route"] == "both":
         return "pdf_analyst"
+    #否则只需 Web 或只需 PDF→ 直接去 writer 节点
     return "writer"
 
 
